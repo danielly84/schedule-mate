@@ -1,100 +1,138 @@
 import { Link } from "wouter";
 import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/shared";
-import { ArrowRight, Calendar, Scissors, Clock } from "lucide-react";
+import { ArrowRight, CalendarCheck, Sparkles, ShieldCheck, Clock3 } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function Home() {
   return (
     <Layout hideNav>
       <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background">
-        
-        {/* Background Image / Texture */}
+
+        {/* Background texture */}
         <div className="absolute inset-0 z-0 pointer-events-none">
-          {/* landing page hero scenic barber shop interior */}
           <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=1920&h=1080&fit=crop')] bg-cover bg-center opacity-10 mix-blend-multiply" />
           <div className="absolute inset-0 bg-gradient-to-b from-background via-background/95 to-background" />
-          
-          {/* Decorative blur orbs */}
           <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-accent/10 rounded-full blur-[100px] mix-blend-multiply" />
           <div className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px] mix-blend-multiply" />
         </div>
 
-        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 flex flex-col items-center text-center">
-          
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-            className="w-20 h-20 mb-8 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center shadow-xl shadow-primary/20 rotate-3"
+        <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-24 flex flex-col items-center text-center">
+
+          {/* Icon mark */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.85 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="mb-10"
           >
-            <Scissors className="w-10 h-10" />
+            <div className="relative w-20 h-20">
+              <div className="w-20 h-20 rounded-[22px] bg-primary text-primary-foreground flex items-center justify-center shadow-xl shadow-primary/25">
+                <CalendarCheck className="w-9 h-9" strokeWidth={1.75} />
+              </div>
+              <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-accent flex items-center justify-center shadow-md">
+                <Sparkles className="w-3.5 h-3.5 text-amber-900" />
+              </div>
+            </div>
           </motion.div>
 
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
+          {/* App name */}
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
-            className="text-5xl md:text-7xl font-bold text-foreground mb-6 tracking-tight leading-tight"
+            transition={{ duration: 0.5, delay: 0.05, ease: "easeOut" }}
+            className="text-sm font-semibold uppercase tracking-widest text-primary/70 mb-4"
           >
             TrimTime
+          </motion.p>
+
+          {/* Main headline */}
+          <motion.h1
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, delay: 0.12, ease: "easeOut" }}
+            className="text-4xl md:text-6xl font-bold text-foreground mb-6 tracking-tight leading-[1.15]"
+          >
+            Clients request a time.
+            <br />
+            <span className="text-primary">You choose what works.</span>
           </motion.h1>
-          
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
-            className="text-xl md:text-2xl text-muted-foreground max-w-2xl mb-4 font-light"
-          >
-            A simple way to manage appointment requests.
-          </motion.p>
 
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
+          {/* Supporting lines */}
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
-            className="text-base text-muted-foreground/80 max-w-lg mb-12"
+            transition={{ duration: 0.55, delay: 0.22, ease: "easeOut" }}
+            className="mb-12 space-y-2"
           >
-            Clients request a time. You can accept, decline, or suggest a different one. No complicated calendars, just simple scheduling.
-          </motion.p>
+            <p className="text-lg text-muted-foreground">
+              Customers pick a service and send you a request.
+            </p>
+            <p className="text-lg text-muted-foreground">
+              You accept, decline, or suggest a different time — it's that simple.
+            </p>
+          </motion.div>
 
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
+          {/* CTAs */}
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
-            className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto"
+            transition={{ duration: 0.55, delay: 0.32, ease: "easeOut" }}
+            className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto mb-5"
           >
             <Link href="/book" className="w-full sm:w-auto block">
-              <Button size="lg" className="w-full text-base group">
-                <Calendar className="mr-2 w-5 h-5" />
-                Book Appointment
+              <Button size="lg" className="w-full text-base group px-8">
+                Request an Appointment
                 <ArrowRight className="ml-2 w-4 h-4 opacity-70 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
-            
+
             <Link href="/dashboard" className="w-full sm:w-auto block">
-              <Button size="lg" variant="outline" className="w-full text-base bg-white/50 backdrop-blur-sm border-2">
-                Open Barber Dashboard
+              <Button size="lg" variant="outline" className="w-full text-base bg-white/50 backdrop-blur-sm border-2 px-8">
+                I'm the Barber →
               </Button>
             </Link>
           </motion.div>
-          
-          <motion.div 
+
+          {/* Reassurance */}
+          <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.8 }}
-            className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl w-full text-left"
+            transition={{ duration: 0.6, delay: 0.45 }}
+            className="text-sm text-muted-foreground/70"
+          >
+            No account needed · Takes less than a minute
+          </motion.p>
+
+          {/* Feature cards */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.65 }}
+            className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-5 max-w-3xl w-full text-left"
           >
             {[
-              { icon: Clock, title: "Request based", desc: "Clients don't book directly. They request a slot, you stay in control." },
-              { icon: Calendar, title: "Easy scheduling", desc: "See your day at a glance without clunky calendar interfaces." },
-              { icon: Scissors, title: "For Independents", desc: "Built specifically for independent barbers and stylists." }
+              {
+                icon: ShieldCheck,
+                title: "You're always in control",
+                desc: "Clients can't book themselves in. Every request goes through you first.",
+              },
+              {
+                icon: Clock3,
+                title: "See your day clearly",
+                desc: "All your requests and confirmed appointments in one easy place.",
+              },
+              {
+                icon: CalendarCheck,
+                title: "Built for independent barbers",
+                desc: "No bloated software. Just what you actually need to run your schedule.",
+              },
             ].map((feature, i) => (
-              <div key={i} className="glass p-6 rounded-2xl">
-                <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center mb-4 text-foreground">
-                  <feature.icon className="w-5 h-5" />
+              <div key={i} className="bg-white/60 backdrop-blur-sm border border-border/40 p-6 rounded-2xl shadow-sm">
+                <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center mb-4 text-primary">
+                  <feature.icon className="w-4.5 h-4.5" strokeWidth={1.75} />
                 </div>
-                <h3 className="font-semibold text-lg mb-2">{feature.title}</h3>
+                <h3 className="font-semibold text-base mb-1.5 text-foreground">{feature.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{feature.desc}</p>
               </div>
             ))}
