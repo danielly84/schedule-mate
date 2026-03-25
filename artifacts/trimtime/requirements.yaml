@@ -1,0 +1,18 @@
+packages:
+  "framer-motion": "For smooth step transitions in the booking flow and elegant page entrances"
+  "date-fns": "For formatting dates nicely in the UI"
+  "clsx": "For conditional class name joining"
+  "tailwind-merge": "For merging tailwind classes efficiently"
+
+images:
+  - path: "artifacts/trimtime/public/images/hero-barber.png"
+    description: "A warm, highly aesthetic, moody, premium barber shop interior, soft lighting, earthy tones, leather chairs, shallow depth of field, cinematic"
+    aspect_ratio: "16:9"
+  - path: "artifacts/trimtime/public/images/logo-mark.png"
+    description: "Minimalist, premium logo for a barber shop, elegant scissors or comb motif, gold and dark espresso colors, transparent background"
+    aspect_ratio: "1:1"
+
+notes:
+  - This is a frontend-only prototype. 
+  - Data is stored in memory via a mocked API layer using React Query.
+  - No real backend connection is attempted.

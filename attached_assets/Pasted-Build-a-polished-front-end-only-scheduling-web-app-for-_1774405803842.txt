@@ -1,0 +1,250 @@
+Build a polished front-end only scheduling web app for an independent barber or hair stylist using Next.js, React, TypeScript, and Tailwind CSS.
+
+This is a portfolio-quality prototype focused on UI, front-end architecture, and user flows only. Do not build a real backend, database, or authentication. Use mock data, local state, and reusable components. Structure the code so it could easily connect to a real backend later.
+
+Product concept:
+This app helps customers request appointments with a barber or hair stylist. The barber/stylist can then accept, decline, or propose a different time.
+
+IMPORTANT UX DIRECTION:
+This experience must be extremely easy to understand and easy to use for a barber or hairstylist in their late 40s who is somewhat tech savvy but not highly technical. English may not be their preferred communication style, so the interface should rely on very clear wording, obvious labels, strong visual hierarchy, and simple step-by-step interactions.
+
+Design for clarity first, not density.
+The app should feel warm, calm, trustworthy, and approachable.
+Avoid complex dashboards, tiny text, crowded tables, or hidden interactions.
+Make everything feel obvious at a glance.
+
+UX PRINCIPLES
+- Use simple, plain language
+- Avoid jargon and unnecessary product terms
+- Use larger text sizes and larger tap targets
+- Reduce cognitive load by showing only what matters
+- Prefer cards, stacked layouts, and clear sections over dense data tables
+- Use strong labels and helpful supporting text
+- Use clear confirmation states after important actions
+- Make buttons obvious and specific, for example “Accept Request” instead of just “Accept”
+- Keep navigation minimal and easy to follow
+- Mobile-first design is very important
+- Desktop should also look polished, but the experience should work especially well on phone
+
+OVERALL
+- Build in Next.js app router
+- Use TypeScript
+- Use Tailwind CSS
+- Use component-based architecture
+- Create clean folder organization
+- Use mock JSON data for services, appointments, schedule, and requests
+- Use local state for interactions
+- No auth, no database, no API calls required
+- Add comments showing where backend integration would happen later
+
+MAIN APP STRUCTURE
+Create three main areas:
+1. Landing page
+2. Customer booking flow
+3. Barber/stylist dashboard
+
+LANDING PAGE
+- Simple hero section
+- App name placeholder: “TrimTime”
+- Short description: “A simple way to manage appointment requests”
+- Supporting text: “Clients request a time. You can accept, decline, or suggest a different one.”
+- Two large CTA buttons:
+  - “Book Appointment”
+  - “Open Barber Dashboard”
+
+CUSTOMER BOOKING FLOW
+Design this as a very simple, step-by-step booking experience.
+Show progress clearly.
+Only show one main task per step.
+
+Step 1: Choose Service
+- Display service cards with:
+  - Service name
+  - Duration
+  - Price
+  - Short description
+- Example services:
+  - Haircut, 45 min, $40
+  - Beard Trim, 20 min, $20
+  - Haircut + Beard, 60 min, $55
+  - Line Up, 15 min, $15
+
+Step 2: Choose Date
+- Show a simple and easy-to-read date selection
+- Do not use a complicated calendar if not needed
+- Use a clean list or card-based date selector with mock available dates
+
+Step 3: Choose Time
+- Show time slots as large selectable buttons
+- Some slots should appear unavailable/disabled
+- Make available vs unavailable very easy to understand
+
+Step 4: Enter Details
+- Name
+- Phone number
+- Optional note
+- Show a simple summary card of selected service, date, and time
+- Keep the form visually clean with enough spacing
+
+Step 5: Booking Submitted
+- Success confirmation screen
+- Explain clearly: “Your request has been sent. The barber will review it and confirm if the time works.”
+- Show request summary
+- Include button to return home
+
+Important customer flow behavior:
+- Customer is submitting a booking request, not instantly booking a confirmed appointment
+- Use very clear copy to explain that the barber can accept, decline, or suggest another time
+
+BARBER / STYLIST DASHBOARD
+This should be the most important part of the app.
+Design it for someone who wants a simple daily tool, not a complicated software dashboard.
+
+Dashboard goals:
+- Show what needs attention right away
+- Make actions obvious
+- Reduce overwhelm
+- Help the barber quickly manage requests between appointments
+
+DASHBOARD LAYOUT
+Use a clean, mobile-friendly layout with:
+- A simple top header
+- A “Today” summary section
+- A “Needs Action” section
+- An “Upcoming Appointments” section
+- A “Today’s Schedule” section
+
+Do not make this feel like a dense admin panel.
+
+TODAY SUMMARY
+Show 2 to 4 large summary cards:
+- New Requests
+- Confirmed Today
+- Open Slots
+- This Week’s Bookings
+
+Use large numbers and very clear labels.
+
+NEEDS ACTION SECTION
+This should be the main focus area.
+Show pending requests as large stacked cards with:
+- Customer name
+- Phone number
+- Service
+- Requested day and time
+- Duration
+- Notes if included
+- Status badge: Pending
+
+Each request card should have very clear buttons:
+- Accept Request
+- Decline Request
+- Suggest Another Time
+
+If “Suggest Another Time” is clicked:
+- Open a simple modal or side panel
+- Show a short heading like “Suggest a different time”
+- Show 2 to 4 alternate large selectable time buttons
+- Include a confirm button: “Send New Time”
+- After submitting, update the card status to “New Time Sent”
+
+CONFIRMED APPOINTMENTS SECTION
+- Show confirmed upcoming appointments
+- Display as easy-to-scan cards, not dense rows
+- Include customer name, service, date/time, duration, and status badge
+- Make this view feel calm and organized
+
+TODAY’S SCHEDULE SECTION
+- Show a simple vertical timeline for the day
+- Include:
+  - confirmed appointments
+  - pending requests or holds
+  - open gaps
+- Do not use a heavy calendar library
+- Make it easy to scan visually
+
+STATE / INTERACTION LOGIC
+Use local React state to simulate:
+- submitting a customer booking request
+- barber accepting a request
+- barber declining a request
+- barber suggesting a new time
+- moving requests between states/views
+
+Add helpful confirmations after actions, for example:
+- “Appointment accepted”
+- “Request declined”
+- “New time sent to customer”
+
+DESIGN DIRECTION
+- Warm, simple, and polished
+- Minimal but not cold
+- Premium and approachable
+- Strong spacing and clear hierarchy
+- Large readable text
+- Large touch-friendly buttons
+- Rounded corners
+- Soft shadows
+- Mobile responsive
+- Avoid overly trendy visuals that reduce clarity
+
+ACCESSIBILITY / CLARITY
+- Good contrast
+- Buttons must be easy to tap on mobile
+- Labels should always be visible
+- Avoid relying only on color to communicate status
+- Pair colors with text labels and icons where helpful
+- Use plain language throughout the UI
+
+COPY STYLE
+Use very simple, human language.
+Examples:
+- “Needs action”
+- “Waiting for your response”
+- “Accept request”
+- “Suggest another time”
+- “No requests right now”
+- “Your request has been sent”
+
+Avoid jargon like:
+- optimize
+- pipeline
+- workflow automation
+- pending queue
+- conversion funnel
+
+COMPONENTS TO CREATE
+- ServiceCard
+- TimeSlotButton
+- BookingStepper
+- BookingSummaryCard
+- RequestCard
+- StatusBadge
+- DashboardStatCard
+- ProposalModal
+- ScheduleTimeline
+- EmptyState
+
+FILES / ARCHITECTURE
+Please organize the project clearly, such as:
+- app/
+- components/
+- lib/mock-data.ts
+- lib/types.ts
+- lib/utils.ts
+
+Also create reusable TypeScript types for:
+- Service
+- BookingRequest
+- Appointment
+- RequestStatus
+
+POLISH
+- Add subtle transitions and hover states
+- Add empty states where useful
+- Add realistic sample names and data
+- Make all demo flows usable without needing a backend
+
+IMPORTANT
+This should look portfolio-ready and visually strong for a product designer showcasing front-end product thinking.
+Keep the architecture clean and scalable, but prioritize clarity and ease of use over complexity.

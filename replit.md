@@ -4,6 +4,39 @@
 
 pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
 
+## TrimTime App (`artifacts/trimtime`)
+
+A polished, front-end only scheduling web app for independent barbers/hair stylists.
+
+### Tech Stack
+- React + Vite + TypeScript + Tailwind CSS
+- Wouter (routing), TanStack React Query (state/data), Framer Motion (animations)
+- date-fns (date formatting), lucide-react (icons), Shadcn UI components
+
+### Structure
+- `src/pages/home.tsx` — Landing page with hero, CTAs
+- `src/pages/booking.tsx` — 5-step customer booking flow
+- `src/pages/dashboard.tsx` — Barber dashboard
+- `src/components/layout.tsx` — Shared layout with navbar
+- `src/components/ui/shared.tsx` — Custom UI primitives (Button, Card, Badge, Input, Textarea)
+- `src/lib/types.ts` — TypeScript types (Service, BookingRequest, Appointment, RequestStatus)
+- `src/lib/mock-data.ts` — Mock data store (services, requests, appointments)
+- `src/hooks/use-mock-api.ts` — Simulated API hooks (useQuery/useMutation patterns)
+
+### Routes
+- `/` — Landing page
+- `/book` — Customer booking flow (5 steps: service → date → time → details → confirmation)
+- `/dashboard` — Barber/stylist dashboard
+
+### Features
+- Step-by-step booking with progress indicator
+- Service cards, date cards, time slot buttons (available/unavailable)
+- Customer details form with booking summary
+- Barber dashboard: stat cards, pending requests, accept/decline/suggest actions
+- Propose alternative time modal
+- Today's schedule vertical timeline
+- All state managed locally via React Query + mock in-memory store
+
 ## Stack
 
 - **Monorepo tool**: pnpm workspaces
