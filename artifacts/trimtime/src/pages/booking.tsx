@@ -4,9 +4,10 @@ import { Layout } from "@/components/layout";
 import { Button, Card, Input, Textarea } from "@/components/ui/shared";
 import { useServices, useAvailableTimeSlots, useCreateRequest } from "@/hooks/use-mock-api";
 import { Service, UserDetails } from "@/lib/types";
-import { format, addDays, isSameDay } from "date-fns";
+import { getDateAvailability } from "@/lib/mock-data";
+import { format, addDays, isSameDay, startOfDay } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle2, ChevronLeft, Clock, Scissors, Calendar as CalendarIcon, ArrowRight } from "lucide-react";
+import { CheckCircle2, ChevronLeft, ChevronRight, Clock, Scissors, Calendar as CalendarIcon, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // Step labels shown under each indicator dot
@@ -63,12 +64,18 @@ export default function BookingFlow() {
   const [selectedDate, setSelectedDate] = useState<Date>(addDays(new Date(), 1));
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [userDetails, setUserDetails] = useState<UserDetails>({ name: "", phone: "", note: "" });
+  const [datePage, setDatePage] = useState(0); // 0 = days 0–6, 1 = days 7–13, etc.
 
   const { data: services, isLoading: isLoadingServices } = useServices();
   const { data: timeSlots, isLoading: isLoadingTimes } = useAvailableTimeSlots(format(selectedDate, "yyyy-MM-dd"));
   const createRequest = useCreateRequest();
 
-  const upcomingDates = Array.from({ length: 14 }).map((_, i) => addDays(new Date(), i));
+  const today = startOfDay(new Date());
+  // 4 pages × 7 days = 28 days browsable
+  const PAGE_SIZE = 7;
+  const MAX_PAGES = 4;
+  const upcomingDates = Array.from({ length: PAGE_SIZE * MAX_PAGES }).map((_, i) => addDays(today, i));
+  const visibleDates = upcomingDates.slice(datePage * PAGE_SIZE, (datePage + 1) * PAGE_SIZE);
 
   const handleNext = () => { if (step < totalSteps) setStep(s => s + 1); };
   const handleBack = () => { if (step > 1) setStep(s => s - 1); else navigate("/"); };
@@ -202,37 +209,120 @@ export default function BookingFlow() {
 
               {/* ── STEP 2: DATE ── */}
               {step === 2 && (
-                <div className="space-y-6">
-                  <div className="mb-6">
-                    <h2 className="text-2xl font-bold text-foreground">Choose a day</h2>
-                    <p className="text-sm text-muted-foreground mt-1">When would you like to come in?</p>
+                <div className="space-y-5">
+                  <div className="mb-2">
+                    <h2 className="text-2xl font-bold text-foreground">Pick a day</h2>
+                    <p className="text-sm text-muted-foreground mt-1">You can change this later if needed.</p>
                   </div>
 
+                  {/* Week navigation */}
+                  <div className="flex items-center justify-between">
+                    <button
+                      onClick={() => setDatePage(p => Math.max(0, p - 1))}
+                      disabled={datePage === 0}
+                      className={cn(
+                        "flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
+                        datePage === 0
+                          ? "text-muted-foreground/40 cursor-not-allowed"
+                          : "text-foreground hover:bg-secondary"
+                      )}
+                    >
+                      <ChevronLeft className="w-4 h-4" /> Earlier
+                    </button>
+
+                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      {format(visibleDates[0], "MMM d")} — {format(visibleDates[visibleDates.length - 1], "MMM d")}
+                    </span>
+
+                    <button
+                      onClick={() => setDatePage(p => Math.min(MAX_PAGES - 1, p + 1))}
+                      disabled={datePage === MAX_PAGES - 1}
+                      className={cn(
+                        "flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
+                        datePage === MAX_PAGES - 1
+                          ? "text-muted-foreground/40 cursor-not-allowed"
+                          : "text-foreground hover:bg-secondary"
+                      )}
+                    >
+                      Later <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* Date grid */}
                   <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
-                    {upcomingDates.map((date, i) => {
+                    {visibleDates.map((date, i) => {
+                      const dayOffset = datePage * PAGE_SIZE + i;
                       const isSelected = isSameDay(date, selectedDate);
-                      const isToday = isSameDay(date, new Date());
+                      const isToday = isSameDay(date, today);
+                      const avail = getDateAvailability(dayOffset);
+                      const isFull = avail.status === "full";
+
                       return (
                         <button
                           key={i}
-                          onClick={() => { setSelectedDate(date); setSelectedTime(null); }}
+                          disabled={isFull}
+                          onClick={() => { if (!isFull) { setSelectedDate(date); setSelectedTime(null); } }}
                           className={cn(
-                            "py-3 px-2 rounded-xl border-2 text-center transition-all flex flex-col items-center justify-center",
-                            isSelected
-                              ? "border-primary bg-primary text-primary-foreground shadow-md -translate-y-0.5"
-                              : "border-input bg-white hover:border-primary/50 text-foreground"
+                            "py-3 px-2 rounded-xl border-2 text-center transition-all flex flex-col items-center justify-center gap-0.5",
+                            isFull && "opacity-45 cursor-not-allowed bg-secondary/30 border-transparent",
+                            !isFull && isSelected && "border-primary bg-primary text-primary-foreground shadow-lg -translate-y-0.5",
+                            !isFull && !isSelected && isToday && "border-primary/30 bg-primary/5 hover:border-primary/60",
+                            !isFull && !isSelected && !isToday && "border-input bg-white hover:border-primary/50",
                           )}
                         >
-                          <span className={cn("text-[10px] font-bold uppercase tracking-wider mb-1", isSelected ? "text-primary-foreground/80" : "text-muted-foreground")}>
+                          {/* Day label */}
+                          <span className={cn(
+                            "text-[10px] font-bold uppercase tracking-wider",
+                            isSelected ? "text-primary-foreground/80" : isToday ? "text-primary font-extrabold" : "text-muted-foreground"
+                          )}>
                             {isToday ? "Today" : format(date, "EEE")}
                           </span>
-                          <span className="text-xl font-bold">{format(date, "d")}</span>
-                          <span className={cn("text-[10px] mt-0.5", isSelected ? "text-primary-foreground/70" : "text-muted-foreground")}>
+
+                          {/* Date number */}
+                          <span className={cn(
+                            "text-xl font-bold leading-none my-0.5",
+                            isSelected ? "text-primary-foreground" : isFull ? "text-muted-foreground" : "text-foreground"
+                          )}>
+                            {format(date, "d")}
+                          </span>
+
+                          {/* Month */}
+                          <span className={cn(
+                            "text-[10px]",
+                            isSelected ? "text-primary-foreground/70" : "text-muted-foreground"
+                          )}>
                             {format(date, "MMM")}
+                          </span>
+
+                          {/* Availability pill */}
+                          <span className={cn(
+                            "mt-1.5 text-[9px] font-semibold px-1.5 py-0.5 rounded-full leading-none",
+                            isSelected
+                              ? "bg-primary-foreground/20 text-primary-foreground"
+                              : avail.status === "available" && "bg-green-100 text-green-700",
+                            avail.status === "limited"      && !isSelected && "bg-amber-100 text-amber-700",
+                            avail.status === "almost-full"  && !isSelected && "bg-orange-100 text-orange-700",
+                            avail.status === "full"         && "bg-transparent text-muted-foreground/60"
+                          )}>
+                            {avail.label}
                           </span>
                         </button>
                       );
                     })}
+                  </div>
+
+                  {/* Page dots */}
+                  <div className="flex items-center justify-center gap-1.5 pt-1">
+                    {Array.from({ length: MAX_PAGES }).map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setDatePage(i)}
+                        className={cn(
+                          "rounded-full transition-all",
+                          i === datePage ? "w-4 h-2 bg-primary" : "w-2 h-2 bg-muted-foreground/25 hover:bg-muted-foreground/50"
+                        )}
+                      />
+                    ))}
                   </div>
                 </div>
               )}

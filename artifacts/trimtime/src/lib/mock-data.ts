@@ -93,6 +93,21 @@ export const store = {
   ] as Appointment[]
 };
 
+// Deterministic date availability based on day offset from today
+export type DateAvailStatus = 'available' | 'limited' | 'almost-full' | 'full';
+export interface DateAvailInfo { status: DateAvailStatus; label: string }
+
+export function getDateAvailability(dayOffset: number): DateAvailInfo {
+  // Today is always available (barber could be free)
+  if (dayOffset === 0) return { status: 'available', label: 'Available' };
+  const p = dayOffset % 13;
+  if (p === 4)  return { status: 'limited',     label: '3 spots left' };
+  if (p === 7)  return { status: 'limited',     label: '2 spots left' };
+  if (p === 10) return { status: 'almost-full', label: 'Almost full'  };
+  if (p === 12) return { status: 'full',        label: 'Fully booked' };
+  return { status: 'available', label: 'Available' };
+}
+
 export const availableTimeSlots = [
   '9:00 AM', '9:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM',
   '12:00 PM', '12:30 PM', '1:00 PM', '1:30 PM', '2:00 PM', '2:30 PM',
