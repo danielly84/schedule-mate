@@ -208,124 +208,167 @@ export default function BookingFlow() {
               )}
 
               {/* ── STEP 2: DATE ── */}
-              {step === 2 && (
-                <div className="space-y-5">
-                  <div className="mb-2">
-                    <h2 className="text-2xl font-bold text-foreground">Pick a day</h2>
-                    <p className="text-sm text-muted-foreground mt-1">You can change this later if needed.</p>
-                  </div>
+              {step === 2 && (() => {
+                // First non-full day on the current page = "recommended"
+                const recommendedOffset = (() => {
+                  for (let i = 0; i < PAGE_SIZE; i++) {
+                    const offset = datePage * PAGE_SIZE + i;
+                    if (getDateAvailability(offset).status !== "full") return offset;
+                  }
+                  return -1;
+                })();
 
-                  {/* Week navigation */}
-                  <div className="flex items-center justify-between">
-                    <button
-                      onClick={() => setDatePage(p => Math.max(0, p - 1))}
-                      disabled={datePage === 0}
-                      className={cn(
-                        "flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
-                        datePage === 0
-                          ? "text-muted-foreground/40 cursor-not-allowed"
-                          : "text-foreground hover:bg-secondary"
+                const weekLabels = ["This week", "Next week", "In two weeks", "In three weeks"];
+
+                const goToPage = (newPage: number) => {
+                  setDatePage(newPage);
+                  // Auto-select first available date on the new page
+                  for (let i = 0; i < PAGE_SIZE; i++) {
+                    const offset = newPage * PAGE_SIZE + i;
+                    if (getDateAvailability(offset).status !== "full") {
+                      setSelectedDate(upcomingDates[offset]);
+                      setSelectedTime(null);
+                      break;
+                    }
+                  }
+                };
+
+                return (
+                  <div className="space-y-4">
+                    <div className="mb-1">
+                      <h2 className="text-2xl font-bold text-foreground">Pick a day</h2>
+                      <p className="text-sm text-muted-foreground mt-1">Pick a day to see available times.</p>
+                    </div>
+
+                    {/* Week navigation */}
+                    <div className="flex items-center justify-between">
+                      {/* Hide "Earlier" entirely on page 0 */}
+                      {datePage > 0 ? (
+                        <button
+                          onClick={() => goToPage(datePage - 1)}
+                          className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium text-foreground hover:bg-secondary active:bg-secondary/80 transition-colors"
+                        >
+                          <ChevronLeft className="w-4 h-4" /> Earlier
+                        </button>
+                      ) : (
+                        <div className="w-24" /> /* spacer to keep layout balanced */
                       )}
-                    >
-                      <ChevronLeft className="w-4 h-4" /> Earlier
-                    </button>
 
-                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                      {format(visibleDates[0], "MMM d")} — {format(visibleDates[visibleDates.length - 1], "MMM d")}
-                    </span>
+                      <div className="text-center">
+                        <p className="text-xs font-bold text-foreground uppercase tracking-wider leading-none">
+                          {weekLabels[datePage]}
+                        </p>
+                        <p className="text-[11px] text-muted-foreground mt-0.5">
+                          {format(visibleDates[0], "MMM d")} — {format(visibleDates[visibleDates.length - 1], "MMM d")}
+                        </p>
+                      </div>
 
-                    <button
-                      onClick={() => setDatePage(p => Math.min(MAX_PAGES - 1, p + 1))}
-                      disabled={datePage === MAX_PAGES - 1}
-                      className={cn(
-                        "flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
-                        datePage === MAX_PAGES - 1
-                          ? "text-muted-foreground/40 cursor-not-allowed"
-                          : "text-foreground hover:bg-secondary"
+                      {datePage < MAX_PAGES - 1 ? (
+                        <button
+                          onClick={() => goToPage(datePage + 1)}
+                          className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-semibold text-primary hover:bg-primary/8 active:bg-primary/15 transition-colors"
+                        >
+                          Later <ChevronRight className="w-4 h-4" />
+                        </button>
+                      ) : (
+                        <div className="w-24" />
                       )}
-                    >
-                      Later <ChevronRight className="w-4 h-4" />
-                    </button>
-                  </div>
+                    </div>
 
-                  {/* Date grid */}
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
-                    {visibleDates.map((date, i) => {
-                      const dayOffset = datePage * PAGE_SIZE + i;
-                      const isSelected = isSameDay(date, selectedDate);
-                      const isToday = isSameDay(date, today);
-                      const avail = getDateAvailability(dayOffset);
-                      const isFull = avail.status === "full";
+                    {/* Date grid */}
+                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
+                      {visibleDates.map((date, i) => {
+                        const dayOffset = datePage * PAGE_SIZE + i;
+                        const isSelected = isSameDay(date, selectedDate);
+                        const isToday = isSameDay(date, today);
+                        const avail = getDateAvailability(dayOffset);
+                        const isFull = avail.status === "full";
+                        const isRecommended = dayOffset === recommendedOffset;
+                        const showAvailPill = !isSelected && (avail.status === "limited" || avail.status === "almost-full" || avail.status === "full");
 
-                      return (
+                        return (
+                          <button
+                            key={i}
+                            disabled={isFull}
+                            onClick={() => { if (!isFull) { setSelectedDate(date); setSelectedTime(null); } }}
+                            className={cn(
+                              "relative py-3 px-2 rounded-xl border-2 text-center transition-all duration-200 flex flex-col items-center justify-center gap-0.5",
+                              isFull      && "opacity-40 cursor-not-allowed bg-secondary/20 border-transparent",
+                              !isFull && isSelected  && "border-primary bg-primary text-primary-foreground shadow-xl scale-[1.04] -translate-y-0.5 z-10",
+                              !isFull && !isSelected && isToday  && "border-primary/35 bg-primary/6 hover:border-primary/70 hover:bg-primary/10",
+                              !isFull && !isSelected && !isToday && "border-input bg-white hover:border-primary/50 hover:bg-secondary/40",
+                            )}
+                          >
+                            {/* Recommended badge — top-right corner */}
+                            {isRecommended && !isSelected && (
+                              <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[8px] font-bold px-1.5 py-0.5 bg-primary text-primary-foreground rounded-full whitespace-nowrap leading-none">
+                                Best option
+                              </span>
+                            )}
+                            {isRecommended && isSelected && (
+                              <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[8px] font-bold px-1.5 py-0.5 bg-primary-foreground/25 text-primary-foreground rounded-full whitespace-nowrap leading-none">
+                                Best option
+                              </span>
+                            )}
+
+                            {/* Day label */}
+                            <span className={cn(
+                              "text-[10px] font-bold uppercase tracking-wider mt-1",
+                              isSelected ? "text-primary-foreground/80" : isToday ? "text-primary" : "text-muted-foreground"
+                            )}>
+                              {isToday ? "Today" : format(date, "EEE")}
+                            </span>
+
+                            {/* Date number */}
+                            <span className={cn(
+                              "text-xl font-bold leading-none my-0.5",
+                              isSelected ? "text-primary-foreground" : isFull ? "text-muted-foreground/60" : "text-foreground"
+                            )}>
+                              {format(date, "d")}
+                            </span>
+
+                            {/* Month */}
+                            <span className={cn(
+                              "text-[10px]",
+                              isSelected ? "text-primary-foreground/70" : "text-muted-foreground"
+                            )}>
+                              {format(date, "MMM")}
+                            </span>
+
+                            {/* Availability pill — only for non-available states */}
+                            {showAvailPill && (
+                              <span className={cn(
+                                "mt-1 text-[9px] font-semibold px-1.5 py-0.5 rounded-full leading-none",
+                                avail.status === "limited"     && "bg-amber-100 text-amber-700",
+                                avail.status === "almost-full" && "bg-orange-100 text-orange-700",
+                                avail.status === "full"        && "text-muted-foreground/50"
+                              )}>
+                                {avail.label}
+                              </span>
+                            )}
+                            {/* Reserve space when no pill so cards stay equal height */}
+                            {!showAvailPill && <span className="mt-1 h-4" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Page dots */}
+                    <div className="flex items-center justify-center gap-1.5 pt-1">
+                      {Array.from({ length: MAX_PAGES }).map((_, i) => (
                         <button
                           key={i}
-                          disabled={isFull}
-                          onClick={() => { if (!isFull) { setSelectedDate(date); setSelectedTime(null); } }}
+                          onClick={() => goToPage(i)}
                           className={cn(
-                            "py-3 px-2 rounded-xl border-2 text-center transition-all flex flex-col items-center justify-center gap-0.5",
-                            isFull && "opacity-45 cursor-not-allowed bg-secondary/30 border-transparent",
-                            !isFull && isSelected && "border-primary bg-primary text-primary-foreground shadow-lg -translate-y-0.5",
-                            !isFull && !isSelected && isToday && "border-primary/30 bg-primary/5 hover:border-primary/60",
-                            !isFull && !isSelected && !isToday && "border-input bg-white hover:border-primary/50",
+                            "rounded-full transition-all",
+                            i === datePage ? "w-4 h-2 bg-primary" : "w-2 h-2 bg-muted-foreground/25 hover:bg-muted-foreground/50"
                           )}
-                        >
-                          {/* Day label */}
-                          <span className={cn(
-                            "text-[10px] font-bold uppercase tracking-wider",
-                            isSelected ? "text-primary-foreground/80" : isToday ? "text-primary font-extrabold" : "text-muted-foreground"
-                          )}>
-                            {isToday ? "Today" : format(date, "EEE")}
-                          </span>
-
-                          {/* Date number */}
-                          <span className={cn(
-                            "text-xl font-bold leading-none my-0.5",
-                            isSelected ? "text-primary-foreground" : isFull ? "text-muted-foreground" : "text-foreground"
-                          )}>
-                            {format(date, "d")}
-                          </span>
-
-                          {/* Month */}
-                          <span className={cn(
-                            "text-[10px]",
-                            isSelected ? "text-primary-foreground/70" : "text-muted-foreground"
-                          )}>
-                            {format(date, "MMM")}
-                          </span>
-
-                          {/* Availability pill */}
-                          <span className={cn(
-                            "mt-1.5 text-[9px] font-semibold px-1.5 py-0.5 rounded-full leading-none",
-                            isSelected
-                              ? "bg-primary-foreground/20 text-primary-foreground"
-                              : avail.status === "available" && "bg-green-100 text-green-700",
-                            avail.status === "limited"      && !isSelected && "bg-amber-100 text-amber-700",
-                            avail.status === "almost-full"  && !isSelected && "bg-orange-100 text-orange-700",
-                            avail.status === "full"         && "bg-transparent text-muted-foreground/60"
-                          )}>
-                            {avail.label}
-                          </span>
-                        </button>
-                      );
-                    })}
+                        />
+                      ))}
+                    </div>
                   </div>
-
-                  {/* Page dots */}
-                  <div className="flex items-center justify-center gap-1.5 pt-1">
-                    {Array.from({ length: MAX_PAGES }).map((_, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setDatePage(i)}
-                        className={cn(
-                          "rounded-full transition-all",
-                          i === datePage ? "w-4 h-2 bg-primary" : "w-2 h-2 bg-muted-foreground/25 hover:bg-muted-foreground/50"
-                        )}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
+                );
+              })()}
 
               {/* ── STEP 3: TIME ── */}
               {step === 3 && (
