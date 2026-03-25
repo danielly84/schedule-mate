@@ -7,7 +7,7 @@ import { Service, UserDetails } from "@/lib/types";
 import { getDateAvailability } from "@/lib/mock-data";
 import { format, addDays, isSameDay, startOfDay } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle2, ChevronLeft, ChevronRight, Clock, Scissors, Calendar as CalendarIcon, ArrowRight } from "lucide-react";
+import { CheckCircle2, ChevronLeft, ChevronRight, Clock, Scissors, Calendar as CalendarIcon, ArrowRight, Phone } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // Step labels shown under each indicator dot
@@ -606,28 +606,84 @@ export default function BookingFlow() {
 
               {/* ── STEP 5: SUCCESS ── */}
               {step === 5 && (
-                <div className="text-center py-12 space-y-5">
+                <div className="flex flex-col items-center text-center py-10 space-y-6">
+
+                  {/* Animated check */}
                   <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", stiffness: 200, damping: 18 }}
-                    className="w-24 h-24 bg-[#2d6a4f]/10 text-[#2d6a4f] rounded-full flex items-center justify-center mx-auto mb-4"
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ type: "spring", stiffness: 220, damping: 18 }}
+                    className="w-20 h-20 bg-[#2d6a4f]/10 text-[#2d6a4f] rounded-full flex items-center justify-center"
                   >
-                    <CheckCircle2 className="w-12 h-12" />
+                    <CheckCircle2 className="w-10 h-10" />
                   </motion.div>
 
-                  <h2 className="text-3xl font-bold">Request sent!</h2>
-                  <p className="text-lg text-muted-foreground max-w-sm mx-auto">
-                    Your request for a <strong className="text-foreground">{selectedService?.name}</strong> on{" "}
-                    <strong className="text-foreground">{format(selectedDate, "MMM do")} at {selectedTime}</strong> has been sent.
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    The barber will review it and text you at{" "}
-                    <span className="font-medium text-foreground">{userDetails.phone}</span> to confirm.
-                  </p>
-                  <div className="pt-6">
-                    <Button size="lg" onClick={() => navigate("/")}>Back to Home</Button>
-                  </div>
+                  {/* Headline */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.15, duration: 0.35 }}
+                    className="space-y-2"
+                  >
+                    <h2 className="text-3xl font-bold tracking-tight">You're all set</h2>
+                    <p className="text-muted-foreground text-base">We've sent your request to the barber.</p>
+                  </motion.div>
+
+                  {/* Booking pill */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.25, duration: 0.3 }}
+                    className="inline-flex items-center gap-2 bg-secondary/60 border border-border/60 rounded-full px-5 py-2.5 text-sm font-semibold text-foreground"
+                  >
+                    <Scissors className="w-4 h-4 text-primary opacity-80 shrink-0" />
+                    {selectedService?.name}
+                    <span className="text-muted-foreground font-normal">·</span>
+                    {format(selectedDate, "MMM do")} at {selectedTime}
+                  </motion.div>
+
+                  {/* What happens next */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.35, duration: 0.3 }}
+                    className="w-full max-w-sm text-left space-y-0 rounded-2xl border border-border/60 bg-card overflow-hidden"
+                  >
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-5 pt-4 pb-2">
+                      What happens next
+                    </p>
+                    {[
+                      { icon: Clock,        text: "The barber reviews your request" },
+                      { icon: Phone,        text: `We'll text you at ${userDetails.phone || "your number"} to confirm` },
+                      { icon: Scissors,     text: "Show up and enjoy your cut" },
+                    ].map(({ icon: Icon, text }, i) => (
+                      <div key={i} className={cn(
+                        "flex items-center gap-3 px-5 py-3.5 text-sm text-foreground/80",
+                        i < 2 && "border-b border-border/50"
+                      )}>
+                        <div className="w-7 h-7 rounded-full bg-primary/8 text-primary flex items-center justify-center shrink-0">
+                          <Icon className="w-3.5 h-3.5" />
+                        </div>
+                        {text}
+                      </div>
+                    ))}
+                  </motion.div>
+
+                  {/* Reassurance + CTA */}
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.5, duration: 0.3 }}
+                    className="space-y-4 w-full max-w-sm"
+                  >
+                    <p className="text-sm text-muted-foreground">
+                      No need to call or text — we've got it from here.
+                    </p>
+                    <Button size="lg" className="w-full" onClick={() => navigate("/")}>
+                      Back to Home
+                    </Button>
+                  </motion.div>
+
                 </div>
               )}
 
