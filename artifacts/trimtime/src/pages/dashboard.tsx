@@ -49,10 +49,10 @@ export default function Dashboard() {
   const [proposedTime, setProposedTime] = useState<string | null>(null);
 
   const mockAlternativeTimes = [
-    "Tomorrow at 10:00 AM",
-    "Tomorrow at 1:30 PM",
-    "Wednesday at 9:00 AM",
-    "Wednesday at 4:00 PM",
+    { time: "Tomorrow at 10:00 AM", label: "Soonest" },
+    { time: "Tomorrow at 1:30 PM",  label: "Later tomorrow" },
+    { time: "Wednesday at 9:00 AM", label: "Next day" },
+    { time: "Wednesday at 4:00 PM", label: "Later" },
   ];
 
   if (isLoading || !data) {
@@ -87,7 +87,7 @@ export default function Dashboard() {
 
   const handleOpenPropose = (req: BookingRequest) => {
     setSelectedRequest(req);
-    setProposedTime(null);
+    setProposedTime(mockAlternativeTimes[0].time); // pre-select soonest by default
     setProposeModalOpen(true);
   };
 
@@ -97,7 +97,7 @@ export default function Dashboard() {
       { id: selectedRequest.id, status: "new-time-sent", newTime: proposedTime },
       {
         onSuccess: () => {
-          toast({ title: "New time sent", description: `${selectedRequest.customerName} will see your suggested time.`, duration: 3000 });
+          toast({ title: `New time sent to ${selectedRequest.customerName}`, description: "They'll be notified right away.", duration: 3000 });
           setProposeModalOpen(false);
         },
       }
@@ -295,43 +295,64 @@ export default function Dashboard() {
 
       {/* Suggest New Time Modal */}
       <Dialog open={proposeModalOpen} onOpenChange={setProposeModalOpen}>
-        <DialogContent className="sm:max-w-md bg-card">
-          <DialogHeader>
-            <DialogTitle className="text-xl">Suggest a new time</DialogTitle>
-            <DialogDescription>
-              {selectedRequest?.customerName} asked for {selectedRequest?.time}.
-              Pick a time that works better for you.
+        <DialogContent className="sm:max-w-sm bg-card">
+          <DialogHeader className="pb-1">
+            <DialogTitle className="text-xl font-bold">Pick a new time</DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground">
+              Pick a time that works for you — we'll let{" "}
+              <span className="font-medium text-foreground">{selectedRequest?.customerName}</span> know.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="py-4 space-y-2">
-            {mockAlternativeTimes.map((time, i) => (
-              <button
-                key={i}
-                onClick={() => setProposedTime(time)}
-                className={cn(
-                  "w-full text-left px-4 py-3.5 rounded-xl border-2 transition-all font-medium flex justify-between items-center text-sm",
-                  proposedTime === time
-                    ? "border-primary bg-primary/5 text-primary"
-                    : "border-input bg-white hover:border-primary/40 text-foreground"
-                )}
-              >
-                {time}
-                {proposedTime === time && <CheckCircle2 className="w-5 h-5 shrink-0" />}
-              </button>
-            ))}
+          <div className="py-3 space-y-2">
+            {mockAlternativeTimes.map(({ time, label }, i) => {
+              const isSelected = proposedTime === time;
+              return (
+                <button
+                  key={i}
+                  onClick={() => setProposedTime(time)}
+                  className={cn(
+                    "w-full text-left px-4 py-3.5 rounded-xl border-2 transition-all flex items-center justify-between gap-3",
+                    isSelected
+                      ? "border-primary bg-primary text-primary-foreground shadow-md"
+                      : "border-input bg-white hover:border-primary/50 hover:bg-secondary/40 text-foreground"
+                  )}
+                >
+                  <div>
+                    <p className={cn("font-semibold text-sm leading-tight", isSelected ? "text-primary-foreground" : "text-foreground")}>
+                      {time}
+                    </p>
+                    <p className={cn("text-xs mt-0.5", isSelected ? "text-primary-foreground/70" : "text-muted-foreground")}>
+                      {label}
+                    </p>
+                  </div>
+                  <div className={cn(
+                    "w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all",
+                    isSelected ? "border-primary-foreground bg-primary-foreground/20" : "border-input"
+                  )}>
+                    {isSelected && <CheckCircle2 className="w-4 h-4 text-primary-foreground" />}
+                  </div>
+                </button>
+              );
+            })}
           </div>
 
-          <DialogFooter className="sm:justify-between border-t pt-4 gap-2">
-            <Button variant="outline" onClick={() => setProposeModalOpen(false)}>
-              Cancel
-            </Button>
+          <DialogFooter className="border-t pt-4 flex-col sm:flex-row gap-2">
             <Button
               onClick={handleSendProposal}
               disabled={!proposedTime || updateStatus.isPending}
+              isLoading={updateStatus.isPending}
+              className="flex-1 font-semibold"
             >
-              Send New Time
+              Send this time
               <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => setProposeModalOpen(false)}
+              className="text-muted-foreground"
+            >
+              Cancel
             </Button>
           </DialogFooter>
         </DialogContent>
