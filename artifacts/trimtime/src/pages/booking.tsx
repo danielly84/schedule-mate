@@ -64,7 +64,21 @@ export default function BookingFlow() {
   const [selectedDate, setSelectedDate] = useState<Date>(addDays(new Date(), 1));
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [userDetails, setUserDetails] = useState<UserDetails>({ name: "", phone: "", note: "" });
-  const [datePage, setDatePage] = useState(0); // 0 = days 0–6, 1 = days 7–13, etc.
+  const [datePage, setDatePage] = useState(0);
+  const [touched, setTouched] = useState({ name: false, phone: false });
+
+  // Format phone as (555) 000-0000
+  const formatPhone = (raw: string) => {
+    const digits = raw.replace(/\D/g, "").slice(0, 10);
+    if (digits.length <= 3) return digits;
+    if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+  };
+
+  const phoneDigits = userDetails.phone.replace(/\D/g, "");
+  const nameError  = touched.name  && userDetails.name.trim().length < 2  ? "Please enter your full name."          : null;
+  const phoneError = touched.phone && phoneDigits.length < 10              ? "Please enter a valid 10-digit number." : null;
+  const step4Valid = userDetails.name.trim().length >= 2 && phoneDigits.length === 10;
 
   const { data: services, isLoading: isLoadingServices } = useServices();
   const { data: timeSlots, isLoading: isLoadingTimes } = useAvailableTimeSlots(format(selectedDate, "yyyy-MM-dd"));
@@ -495,62 +509,96 @@ export default function BookingFlow() {
               {/* ── STEP 4: DETAILS ── */}
               {step === 4 && (
                 <div className="space-y-5">
-                  <div className="mb-6">
+                  <div className="mb-2">
                     <h2 className="text-2xl font-bold text-foreground">Your details</h2>
                     <p className="text-sm text-muted-foreground mt-1">Almost done — just your name and number.</p>
                   </div>
 
-                  {/* Summary Card */}
-                  <Card className="p-4 bg-secondary/50 border-none mb-2">
-                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-3">Your request</p>
-                    <div className="flex gap-3 items-center">
-                      <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                  {/* Summary Card with Change links */}
+                  <Card className="p-4 bg-secondary/40 border border-border/60 shadow-none">
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-3">Your request</p>
+                    <div className="flex gap-3 items-start">
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-0.5">
                         <Scissors className="w-5 h-5" />
                       </div>
-                      <div>
-                        <p className="font-bold text-foreground">{selectedService?.name}</p>
-                        <p className="text-sm text-muted-foreground flex items-center gap-1 mt-0.5">
-                          <CalendarIcon className="w-3.5 h-3.5 opacity-70" />
-                          {format(selectedDate, "MMM do")} at {selectedTime}
-                        </p>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="font-bold text-foreground">{selectedService?.name}</p>
+                          <button
+                            onClick={() => setStep(1)}
+                            className="text-xs text-primary font-semibold hover:underline underline-offset-2 shrink-0"
+                          >
+                            Change
+                          </button>
+                        </div>
+                        <div className="flex items-center justify-between gap-2 mt-0.5">
+                          <p className="text-sm text-muted-foreground flex items-center gap-1">
+                            <CalendarIcon className="w-3.5 h-3.5 opacity-60 shrink-0" />
+                            {format(selectedDate, "MMM do")} at {selectedTime}
+                          </p>
+                          <button
+                            onClick={() => setStep(3)}
+                            className="text-xs text-primary font-semibold hover:underline underline-offset-2 shrink-0"
+                          >
+                            Change
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </Card>
 
+                  {/* Fields */}
                   <div className="space-y-4">
+                    {/* Name */}
                     <div>
-                      <label className="block text-sm font-semibold mb-1.5 ml-0.5">Your name</label>
+                      <label className="block text-sm font-semibold mb-1.5 ml-0.5">Name</label>
                       <Input
-                        placeholder="e.g. James Williams"
+                        autoFocus
+                        placeholder="Full name"
                         value={userDetails.name}
                         onChange={e => setUserDetails(p => ({ ...p, name: e.target.value }))}
+                        onBlur={() => setTouched(t => ({ ...t, name: true }))}
+                        className={cn(nameError && "border-red-400 focus-visible:border-red-500 focus-visible:ring-red-100")}
                       />
+                      {nameError && (
+                        <p className="text-xs text-red-500 mt-1.5 ml-0.5">{nameError}</p>
+                      )}
                     </div>
+
+                    {/* Phone */}
                     <div>
-                      <label className="block text-sm font-semibold mb-1.5 ml-0.5">Phone number</label>
+                      <label className="block text-sm font-semibold mb-1.5 ml-0.5">Phone</label>
                       <Input
                         placeholder="(555) 000-0000"
-                        type="tel"
+                        inputMode="numeric"
                         value={userDetails.phone}
-                        onChange={e => setUserDetails(p => ({ ...p, phone: e.target.value }))}
+                        onChange={e => setUserDetails(p => ({ ...p, phone: formatPhone(e.target.value) }))}
+                        onBlur={() => setTouched(t => ({ ...t, phone: true }))}
+                        className={cn(phoneError && "border-red-400 focus-visible:border-red-500 focus-visible:ring-red-100")}
                       />
+                      {phoneError && (
+                        <p className="text-xs text-red-500 mt-1.5 ml-0.5">{phoneError}</p>
+                      )}
                     </div>
+
+                    {/* Note */}
                     <div>
                       <label className="block text-sm font-semibold mb-1.5 ml-0.5">
                         Note <span className="text-muted-foreground font-normal">(optional)</span>
                       </label>
                       <Textarea
-                        placeholder="Anything the barber should know?"
+                        placeholder="Notes for your barber (optional)"
                         value={userDetails.note}
                         onChange={e => setUserDetails(p => ({ ...p, note: e.target.value }))}
                       />
                     </div>
                   </div>
 
-                  <div className="bg-amber-50 border border-amber-200/70 rounded-xl p-4 flex gap-3 text-sm text-amber-900">
-                    <Clock className="w-4 h-4 shrink-0 mt-0.5 opacity-70" />
+                  {/* Reassurance notice */}
+                  <div className="bg-amber-50 border border-amber-200/60 rounded-xl p-4 flex gap-3 text-sm text-amber-900">
+                    <Clock className="w-4 h-4 shrink-0 mt-0.5 opacity-60" />
                     <p>
-                      <strong>This is a request, not a confirmed booking.</strong> The barber will review it and get back to you.
+                      <strong>This is a request, not a confirmed booking.</strong> The barber will review and text you to confirm or suggest another time.
                     </p>
                   </div>
                 </div>
@@ -621,16 +669,25 @@ export default function BookingFlow() {
               </Button>
             )}
             {step === 4 && (
-              <Button
-                size="lg"
-                className="w-full font-semibold text-base"
-                onClick={submitBooking}
-                isLoading={createRequest.isPending}
-                disabled={!userDetails.name || !userDetails.phone}
-              >
-                Send Request
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
+              <div className="w-full space-y-2">
+                <Button
+                  size="lg"
+                  className="w-full font-semibold text-base"
+                  onClick={() => {
+                    // Touch all fields to reveal any errors before submitting
+                    setTouched({ name: true, phone: true });
+                    if (step4Valid) submitBooking();
+                  }}
+                  isLoading={createRequest.isPending}
+                  disabled={createRequest.isPending}
+                >
+                  {createRequest.isPending ? "Sending…" : "Request Appointment"}
+                  {!createRequest.isPending && <ArrowRight className="w-4 h-4 ml-2" />}
+                </Button>
+                <p className="text-center text-xs text-muted-foreground/60">
+                  No signup needed · Takes a few seconds
+                </p>
+              </div>
             )}
           </div>
         </div>
