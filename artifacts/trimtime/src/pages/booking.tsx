@@ -371,42 +371,126 @@ export default function BookingFlow() {
               })()}
 
               {/* ── STEP 3: TIME ── */}
-              {step === 3 && (
-                <div className="space-y-6">
-                  <div className="mb-6">
-                    <h2 className="text-2xl font-bold text-foreground">Choose a time</h2>
-                    <p className="text-sm text-muted-foreground mt-1">{format(selectedDate, "EEEE, MMMM do")}</p>
-                  </div>
+              {step === 3 && (() => {
+                const getTimeGroup = (time: string): "Morning" | "Afternoon" | "Evening" => {
+                  if (time.includes("AM")) return "Morning";
+                  const hour = parseInt(time.split(":")[0]);
+                  if (hour === 12 || hour < 5) return "Afternoon";
+                  return "Evening";
+                };
 
-                  {isLoadingTimes ? (
-                    <div className="grid grid-cols-3 gap-2.5">
-                      {[1,2,3,4,5,6,7,8,9].map(i => <div key={i} className="h-12 rounded-xl bg-secondary animate-pulse" />)}
+                // First available slot across all times = "Soonest"
+                const soonestTime = timeSlots?.find(s => s.available)?.time ?? null;
+
+                // Build groups — available slots first, booked slots sorted to the end
+                const GROUP_ORDER = ["Morning", "Afternoon", "Evening"] as const;
+                const grouped = GROUP_ORDER.map(label => ({
+                  label,
+                  slots: (timeSlots ?? [])
+                    .filter(s => getTimeGroup(s.time) === label)
+                    .sort((a, b) => (a.available === b.available ? 0 : a.available ? -1 : 1)),
+                })).filter(g => g.slots.length > 0);
+
+                const hasSelection = selectedTime !== null;
+
+                return (
+                  <div className="space-y-5">
+                    {/* Header */}
+                    <div>
+                      <h2 className="text-2xl font-bold text-foreground">Choose a time</h2>
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
+                        <p className="text-sm text-muted-foreground">{format(selectedDate, "EEEE, MMMM do")}</p>
+                        <span className="text-muted-foreground/40 text-sm">·</span>
+                        <button
+                          onClick={() => setStep(2)}
+                          className="text-sm text-primary font-semibold hover:underline underline-offset-2 transition-opacity"
+                        >
+                          Change day
+                        </button>
+                      </div>
+                      <p className="text-xs text-muted-foreground/60 mt-1.5">Times update in real time.</p>
                     </div>
-                  ) : (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                      {timeSlots?.map((slot, i) => {
-                        const isSelected = selectedTime === slot.time;
-                        return (
-                          <button
-                            key={i}
-                            disabled={!slot.available}
-                            onClick={() => setSelectedTime(slot.time)}
-                            className={cn(
-                              "py-3.5 px-2 rounded-xl border-2 text-center font-semibold text-sm transition-all",
-                              !slot.available && "opacity-35 bg-secondary/40 border-transparent cursor-not-allowed text-muted-foreground line-through",
-                              slot.available && !isSelected && "border-input bg-white hover:border-primary/50 text-foreground",
-                              isSelected && "border-primary bg-primary text-primary-foreground shadow-md scale-[1.02]"
-                            )}
-                          >
-                            {slot.time}
-                            {!slot.available && <span className="block text-[10px] mt-0.5 no-underline">Taken</span>}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              )}
+
+                    {/* Skeleton */}
+                    {isLoadingTimes ? (
+                      <div className="space-y-5">
+                        {["Morning", "Afternoon"].map(label => (
+                          <div key={label}>
+                            <div className="h-3 w-16 bg-secondary rounded animate-pulse mb-3" />
+                            <div className="grid grid-cols-3 gap-2.5">
+                              {[1,2,3].map(i => <div key={i} className="h-14 rounded-xl bg-secondary animate-pulse" />)}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="space-y-6">
+                        {grouped.map(({ label, slots }) => (
+                          <div key={label}>
+                            {/* Section heading */}
+                            <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/70 mb-2.5">
+                              {label}
+                            </p>
+
+                            <div className="grid grid-cols-3 gap-2.5">
+                              {slots.map((slot, i) => {
+                                const isSelected = selectedTime === slot.time;
+                                const isSoonest  = slot.time === soonestTime;
+
+                                return (
+                                  <button
+                                    key={i}
+                                    disabled={!slot.available}
+                                    onClick={() => { if (slot.available) setSelectedTime(slot.time); }}
+                                    className={cn(
+                                      "relative py-4 px-2 rounded-xl border-2 text-center font-semibold text-sm transition-all duration-200 flex flex-col items-center justify-center gap-0.5",
+                                      // Booked
+                                      !slot.available && "cursor-not-allowed bg-secondary/20 border-transparent",
+                                      // Available, nothing selected yet
+                                      slot.available && !isSelected && !hasSelection && "border-input bg-white hover:border-primary/50 hover:shadow-sm text-foreground",
+                                      // Available, something else is selected — dim slightly
+                                      slot.available && !isSelected && hasSelection  && "border-input bg-white text-foreground opacity-50 hover:opacity-80 hover:border-primary/40",
+                                      // Selected
+                                      isSelected && "border-primary bg-primary text-primary-foreground shadow-lg scale-[1.04] z-10",
+                                    )}
+                                  >
+                                    {/* Soonest badge */}
+                                    {isSoonest && !isSelected && (
+                                      <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[8px] font-bold px-2 py-0.5 bg-primary text-primary-foreground rounded-full whitespace-nowrap leading-none shadow-sm">
+                                        Soonest
+                                      </span>
+                                    )}
+
+                                    {/* Checkmark when selected */}
+                                    {isSelected && (
+                                      <CheckCircle2 className="w-3.5 h-3.5 text-primary-foreground/80 mb-0.5" />
+                                    )}
+
+                                    {/* Time text */}
+                                    <span className={cn(
+                                      !slot.available && "text-muted-foreground/40",
+                                      isSelected && "text-primary-foreground",
+                                    )}>
+                                      {slot.time}
+                                    </span>
+
+                                    {/* Booked label (replaces "Taken") */}
+                                    {!slot.available && (
+                                      <span className="text-[10px] font-normal text-muted-foreground/35 mt-0.5">
+                                        Booked
+                                      </span>
+                                    )}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
 
               {/* ── STEP 4: DETAILS ── */}
               {step === 4 && (
