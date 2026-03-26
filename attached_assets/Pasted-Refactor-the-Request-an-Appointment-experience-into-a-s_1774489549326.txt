@@ -1,0 +1,143 @@
+Refactor the “Request an Appointment” experience into a single-page booking flow that feels similar in style and UX quality to the current Version 2 of the scheduler app.
+
+IMPORTANT:
+This should no longer be a multi-step flow with separate screens. Instead, everything should happen on one screen/page while still feeling simple, guided, and easy to use.
+
+The design should feel:
+- warm
+- clean
+- premium but approachable
+- very easy to understand
+- mobile-first
+- similar in visual style to the current Version 2 screens that were already built
+
+PRIMARY GOAL:
+Even though this is a one-page experience, it should still feel guided and low-stress for a moderately tech-savvy user. Avoid cognitive overload by using progressive reveal, clear section hierarchy, and strong spacing.
+
+PAGE TITLE
+- Title: “Request an Appointment”
+- Optional helper text: “Choose a service, day, and time”
+
+OVERALL STRUCTURE
+Build the booking flow on one page with these sections in order:
+
+1. Service selection
+2. Day selection
+3. Time selection
+4. Customer details
+5. Sticky summary + CTA
+
+LAYOUT / UX BEHAVIOR
+
+- All sections should appear on one screen/page in a vertical layout
+- Only the first section should feel fully active at first
+- As the user makes selections, the next section becomes active and visually emphasized
+- Sections not yet ready should appear slightly dimmed or subdued, but still visible
+- Smoothly scroll or guide focus downward as the user completes each section
+- Use strong visual selection states throughout
+- Keep interactions obvious and fast
+
+SECTION 1: SERVICE SELECTION
+- Header: “What are you booking?”
+- Reuse the same services already in the barber version:
+  - Haircut — 45 min — $40
+  - Beard Trim — 20 min — $20
+  - Haircut + Beard — 60 min — $55
+  - Line Up — 15 min — $15
+- Display each service as a tappable card
+- Each card should show:
+  - Service name
+  - Duration
+  - Price
+  - Short description if helpful
+- Selected service should have a very clear state:
+  - stronger border
+  - subtle background tint
+  - selected icon or radio indicator
+- Once selected, activate the day selection section
+
+SECTION 2: DAY SELECTION
+- Header: “Pick a day”
+- Use the cleaner Version 2 style already explored:
+  - simple date cards
+  - “Earlier” and “Later” navigation if needed
+  - no full calendar component
+- Show a set of upcoming dates
+- Add subtle availability indicators on some days:
+  - “3 spots left”
+  - “Almost full”
+- Avoid showing “Available” on every date card
+- Selected date should feel clearly chosen
+- When a date is selected, activate the time section
+
+SECTION 3: TIME SELECTION
+- Header: “Pick a time”
+- Show time slots only for the selected day
+- Group time slots into:
+  - Morning
+  - Afternoon
+  - Evening
+- Use large tappable buttons
+- Show unavailable slots as “Booked” with reduced opacity
+- Add one highlighted time slot with a label like:
+  - “Recommended”
+  - or “Soonest”
+- Selected time should have strong visual feedback
+- Once a time is selected, activate the details section
+
+SECTION 4: CUSTOMER DETAILS
+- Header: “Your details”
+- Fields:
+  - Name
+  - Phone
+  - Optional note
+- Keep fields simple and large
+- Use clean spacing and large tap targets
+- Placeholder text:
+  - Name: “Full name”
+  - Phone: “Phone number”
+  - Note: “Anything the barber should know? (optional)”
+- Add a simple informational message:
+  - “This is a request, not a confirmed booking. The barber will review it and text you to confirm or suggest another time.”
+- Keep this section visually calm and easy to complete
+
+SECTION 5: STICKY FOOTER
+- Add a sticky bottom footer that stays visible
+- Show a live summary of the current selection:
+  - Service · Date · Time
+- Show a full-width CTA button:
+  - “Request Appointment”
+- Button should remain disabled until required selections and fields are complete
+- When active, button should feel very obvious and easy to tap
+
+VISUAL / INTERACTION DETAILS
+- Match the same visual tone as the existing Version 2 UI:
+  - soft shadows
+  - rounded cards
+  - warm neutral palette
+  - clean typography
+  - simple hierarchy
+- Keep the layout airy and uncluttered
+- Prioritize mobile usability
+- Make it feel like one smooth guided form, not a dense long page
+- Add subtle transitions and hover/tap states
+- Use clear labels and plain language
+- Avoid anything that feels too technical or too SaaS-like
+
+STATE / LOGIC
+Use local state only.
+No backend needed.
+No auth needed.
+No API calls needed.
+
+The one-page booking flow should feel like:
+- easy to scan
+- easy to complete
+- guided without being step-based
+- visually consistent with the Version 2 style already built
+
+IMPORTANT:
+Do not rebuild the old multi-step flow.
+Do not use a complex calendar.
+Do not overwhelm the screen.
+This should be a clean one-page booking experience that balances speed with clarity.
