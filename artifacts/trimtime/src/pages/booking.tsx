@@ -158,20 +158,11 @@ export default function BookingPage() {
     }, { onSuccess: () => setSubmitted(true) });
   };
 
-  // Time grouping
-  const getTimeGroup = (time: string): "Morning" | "Afternoon" | "Evening" => {
-    if (time.includes("AM")) return "Morning";
-    const h = parseInt(time.split(":")[0]);
-    return (h === 12 || h < 5) ? "Afternoon" : "Evening";
-  };
-  const GROUP_ORDER = ["Morning", "Afternoon", "Evening"] as const;
+  // Flat time slots — available first
   const soonestTime = timeSlots?.find(s => s.available)?.time ?? null;
-  const grouped = GROUP_ORDER.map(label => ({
-    label,
-    slots: (timeSlots ?? [])
-      .filter(s => getTimeGroup(s.time) === label)
-      .sort((a, b) => (a.available === b.available ? 0 : a.available ? -1 : 1)),
-  })).filter(g => g.slots.length > 0);
+  const flatSlots   = (timeSlots ?? []).slice().sort((a, b) =>
+    a.available === b.available ? 0 : a.available ? -1 : 1
+  );
 
   // ── Success screen ─────────────────────────────────────────────────────────
   if (submitted) {
@@ -455,53 +446,44 @@ export default function BookingPage() {
                   </div>
                 ))}
               </div>
-            ) : grouped.length === 0 ? (
+            ) : flatSlots.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground text-sm">
                 No times available for this day. Try a different date.
               </div>
             ) : (
-              <div className="space-y-6">
-                {grouped.map(({ label, slots }) => {
-                  const hasSelection = selectedTime !== null;
-                  return (
-                    <div key={label}>
-                      <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/70 mb-2.5">
-                        {label}
-                      </p>
-                      <div className="grid grid-cols-3 gap-2.5">
-                        {slots.map((slot, i) => {
-                          const isSelected = selectedTime === slot.time;
-                          const isSoonest  = slot.time === soonestTime;
-                          return (
-                            <button
-                              key={i}
-                              disabled={!slot.available}
-                              onClick={() => { if (slot.available) handleSelectTime(slot.time); }}
-                              className={cn(
-                                "relative py-4 px-2 rounded-xl border-2 text-center font-semibold text-sm transition-all duration-200 flex flex-col items-center justify-center gap-0.5",
-                                !slot.available && "cursor-not-allowed bg-secondary/20 border-transparent",
-                                slot.available && !isSelected && !hasSelection && "border-input bg-white hover:border-primary/50 hover:shadow-sm text-foreground",
-                                slot.available && !isSelected && hasSelection  && "border-input bg-white text-foreground opacity-50 hover:opacity-80 hover:border-primary/40",
-                                isSelected && "border-primary bg-primary text-primary-foreground shadow-lg scale-[1.04] z-10",
-                              )}
-                            >
-                              {isSoonest && !isSelected && (
-                                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[8px] font-bold px-2 py-0.5 bg-primary text-primary-foreground rounded-full whitespace-nowrap leading-none shadow-sm">
-                                  Soonest
-                                </span>
-                              )}
-                              {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-primary-foreground/80 mb-0.5" />}
-                              <span className={cn(!slot.available && "text-muted-foreground/40")}>{slot.time}</span>
-                              {!slot.available && (
-                                <span className="text-[10px] font-normal text-muted-foreground/35 mt-0.5">Booked</span>
-                              )}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  );
-                })}
+              <div className="space-y-3">
+                <div className="grid grid-cols-3 gap-2.5">
+                  {flatSlots.map((slot, i) => {
+                    const isSelected   = selectedTime === slot.time;
+                    const isSoonest    = slot.time === soonestTime;
+                    const hasSelection = selectedTime !== null;
+                    return (
+                      <button
+                        key={i}
+                        disabled={!slot.available}
+                        onClick={() => { if (slot.available) handleSelectTime(slot.time); }}
+                        className={cn(
+                          "relative py-4 px-2 rounded-xl border-2 text-center font-semibold text-sm transition-all duration-200 flex flex-col items-center justify-center gap-0.5",
+                          !slot.available && "cursor-not-allowed bg-secondary/20 border-transparent",
+                          slot.available && !isSelected && !hasSelection && "border-input bg-white hover:border-primary/50 hover:shadow-sm text-foreground",
+                          slot.available && !isSelected && hasSelection  && "border-input bg-white text-foreground opacity-50 hover:opacity-80 hover:border-primary/40",
+                          isSelected && "border-primary bg-primary text-primary-foreground shadow-lg scale-[1.04] z-10",
+                        )}
+                      >
+                        {isSoonest && !isSelected && (
+                          <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[8px] font-bold px-2 py-0.5 bg-primary text-primary-foreground rounded-full whitespace-nowrap leading-none shadow-sm">
+                            Soonest
+                          </span>
+                        )}
+                        {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-primary-foreground/80 mb-0.5" />}
+                        <span className={cn(!slot.available && "text-muted-foreground/40")}>{slot.time}</span>
+                        {!slot.available && (
+                          <span className="text-[10px] font-normal text-muted-foreground/35 mt-0.5">Booked</span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
                 <p className="text-xs text-muted-foreground/60">Times update in real time.</p>
               </div>
             )}
