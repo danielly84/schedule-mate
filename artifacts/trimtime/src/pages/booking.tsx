@@ -301,14 +301,6 @@ export default function BookingPage() {
           >
             {(() => {
               const weekLabels = ["This week", "Next week", "In two weeks", "In three weeks"];
-              const recommendedOffset = (() => {
-                for (let i = 0; i < PAGE_SIZE; i++) {
-                  const off = datePage * PAGE_SIZE + i;
-                  if (getDateAvailability(off).status !== "full") return off;
-                }
-                return -1;
-              })();
-
               return (
                 <div className="space-y-3">
                   {/* Week nav */}
@@ -349,7 +341,6 @@ export default function BookingPage() {
                       const isToday    = isSameDay(date, today);
                       const avail      = getDateAvailability(dayOffset);
                       const isFull     = avail.status === "full";
-                      const isRec      = dayOffset === recommendedOffset;
                       const showPill   = !isSelected && (avail.status === "limited" || avail.status === "almost-full");
 
                       return (
@@ -365,11 +356,6 @@ export default function BookingPage() {
                             !isFull && !isSelected && !isToday && "border-input bg-white hover:border-primary/50 hover:bg-secondary/30",
                           )}
                         >
-                          {isRec && !isSelected && (
-                            <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[7px] font-bold px-1.5 py-0.5 bg-primary text-primary-foreground rounded-full whitespace-nowrap leading-none">
-                              Best
-                            </span>
-                          )}
                           <span className={cn(
                             "text-[9px] font-bold uppercase tracking-wider mt-1",
                             isSelected ? "text-primary-foreground/80" : isToday ? "text-primary" : "text-muted-foreground",
