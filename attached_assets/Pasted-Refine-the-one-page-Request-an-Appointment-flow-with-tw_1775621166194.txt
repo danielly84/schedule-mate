@@ -1,0 +1,118 @@
+Refine the one-page “Request an Appointment” flow with two major changes:
+
+1. Change the business context from barber shop to hairstylist / salon
+2. Replace the current date picker / calendar UI with a simpler and more understandable date selection pattern
+
+IMPORTANT
+The current one-page progressive flow should remain, but the content and date-picking experience need to feel more natural, easier to understand, and better suited to a hairstylist with a larger list of services.
+
+OVERALL GOALS
+- Keep the one-page progressive flow
+- Make the content feel like a hairstylist / salon appointment experience
+- Make the date selection much clearer and less confusing
+- Avoid a traditional full calendar grid
+- Avoid carousel dots or any date picker that feels like browsing slides
+- Keep the experience simple, warm, and mobile-friendly
+
+BUSINESS / CONTENT UPDATE
+
+Update the service content to reflect a hairstylist with more service variety.
+
+Use service categories such as:
+- Haircuts
+- Color
+- Styling
+- Treatments
+- Extensions
+
+Example services:
+
+Haircuts:
+- Women’s Haircut — 60 min — $85
+- Trim — 30 min — $45
+- Blowout — 45 min — $55
+
+Color:
+- Root Touch-Up — 90 min — $120
+- Full Color — 2 hrs — $180
+- Highlights — 2.5 hrs — $220
+- Balayage — 3 hrs — $280
+
+Styling:
+- Blowout Styling — 45 min — $55
+- Event Styling — 60 min — $95
+- Bridal Trial — 90 min — $150
+
+Treatments:
+- Deep Conditioning — 30 min — $40
+- Keratin Treatment — 2 hrs — $250
+- Scalp Treatment — 45 min — $70
+
+Extensions:
+- Extension Consultation — 30 min — $50
+- Extension Install — 3 hrs — $350+
+
+Service section UX:
+- Organize services clearly so the user is not overwhelmed
+- Use category tabs, chips, or segmented controls
+- Only show one category at a time
+- Service cards should remain large and easy to tap
+- Selected service should have strong visual feedback
+
+DATE PICKER / CALENDAR UX UPDATE
+
+Completely redesign the current date selection section.
+
+Replace the current mini-carousel / week pagination / dot navigation pattern with a simpler horizontal date strip.
+
+New date selection pattern:
+- Show a horizontal row of upcoming date cards or pills
+- Include the next 7 to 10 days
+- Make the row horizontally scrollable on mobile
+- Clearly highlight the selected date
+- Label the current day as “Today”
+- Remove the pagination dots
+- Remove the current carousel-like interaction
+- Add a simple “More dates” button or inline control at the end if needed
+- Optionally group dates with lightweight labels like:
+  - This week
+  - Next week
+
+Date cards should be easy to scan and tap.
+Only show availability indicators when useful, such as:
+- Few spots left
+- Fully booked
+
+Do not show “Available” on every date card.
+
+TIME SECTION
+- Keep the time section below the date section
+- Show times only for the selected date
+- Group times into:
+  - Morning
+  - Afternoon
+  - Evening
+- Keep large tappable time buttons
+- Use “Booked” for unavailable times
+- Highlight a recommended time if helpful
+
+ONE-PAGE PROGRESSIVE FLOW
+Keep the progressive one-page behavior:
+- Service selection first
+- Then date selection becomes active
+- Then time selection becomes active
+- Then details section
+- Sticky footer summary + CTA stays visible
+
+VISUAL DIRECTION
+- Maintain the warm, clean, premium-but-approachable Version 2 visual style
+- Plenty of spacing
+- Rounded cards
+- Soft shadows
+- Mobile-first
+- Keep the page easy to scan
+
+IMPORTANT
+Prioritize clarity over novelty.
+The new date experience should feel more obvious and less confusing than the current version.
+This should feel like a polished one-page salon booking experience, not a multi-step flow squeezed onto one page.

@@ -1,8 +1,10 @@
 export interface Service {
   id: string;
   name: string;
+  category: string;
   duration: number; // in minutes
   price: number;
+  priceDisplay?: string; // override, e.g. "$350+"
   description: string;
 }
 

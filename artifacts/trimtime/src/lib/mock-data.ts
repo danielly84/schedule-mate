@@ -2,13 +2,29 @@ import { Service, BookingRequest, Appointment } from './types';
 import { addDays, format } from 'date-fns';
 
 export const mockServices: Service[] = [
-  { id: 's1', name: 'Haircut', duration: 45, price: 40, description: 'Classic tailored haircut with a hot towel finish.' },
-  { id: 's2', name: 'Beard Trim', duration: 20, price: 20, description: 'Sculpting, shaping, and line up for your beard.' },
-  { id: 's3', name: 'Haircut + Beard', duration: 60, price: 55, description: 'The complete package for hair and beard.' },
-  { id: 's4', name: 'Line Up', duration: 15, price: 15, description: 'Quick edge up around the hairline and neck.' },
+  // Haircuts
+  { id: 's1',  category: 'Haircuts',    name: "Women's Haircut",       duration: 60,  price: 85,  description: "Cut and style tailored to your hair type and face shape." },
+  { id: 's2',  category: 'Haircuts',    name: "Trim",                  duration: 30,  price: 45,  description: "Clean up and refresh your existing style." },
+  { id: 's3',  category: 'Haircuts',    name: "Blowout",               duration: 45,  price: 55,  description: "Shampoo, condition, and professional blowout." },
+  // Color
+  { id: 's4',  category: 'Color',       name: "Root Touch-Up",         duration: 90,  price: 120, description: "Refresh your color at the roots for a seamless look." },
+  { id: 's5',  category: 'Color',       name: "Full Color",            duration: 120, price: 180, description: "Single-process color applied root to end." },
+  { id: 's6',  category: 'Color',       name: "Highlights",            duration: 150, price: 220, description: "Partial or full highlights to add dimension and brightness." },
+  { id: 's7',  category: 'Color',       name: "Balayage",              duration: 180, price: 280, description: "Hand-painted color for a natural, sun-kissed effect." },
+  // Styling
+  { id: 's8',  category: 'Styling',     name: "Blowout Styling",       duration: 45,  price: 55,  description: "A polished, smooth blowout for any occasion." },
+  { id: 's9',  category: 'Styling',     name: "Event Styling",         duration: 60,  price: 95,  description: "Updo, waves, or custom style for your special event." },
+  { id: 's10', category: 'Styling',     name: "Bridal Trial",          duration: 90,  price: 150, description: "Test run of your wedding day hair look." },
+  // Treatments
+  { id: 's11', category: 'Treatments',  name: "Deep Conditioning",     duration: 30,  price: 40,  description: "Intensive moisture treatment for dry or damaged hair." },
+  { id: 's12', category: 'Treatments',  name: "Keratin Treatment",     duration: 120, price: 250, description: "Smooth frizz and restore shine for up to 3 months." },
+  { id: 's13', category: 'Treatments',  name: "Scalp Treatment",       duration: 45,  price: 70,  description: "Targeted treatment for scalp health and hydration." },
+  // Extensions
+  { id: 's14', category: 'Extensions',  name: "Extension Consultation",duration: 30,  price: 50,  description: "Discuss your goals and find the right extension method." },
+  { id: 's15', category: 'Extensions',  name: "Extension Install",     duration: 180, price: 350, priceDisplay: "$350+", description: "Full installation of your chosen extension method." },
 ];
 
-const today = new Date();
+const today    = new Date();
 const tomorrow = addDays(today, 1);
 const dayAfter = addDays(today, 2);
 const nextWeek = addDays(today, 4);
@@ -21,12 +37,12 @@ export const store = {
     {
       id: 'req_1',
       status: 'pending',
-      customerName: 'James Williams',
+      customerName: 'Jade Williams',
       customerPhone: '555-0123',
       serviceId: 's1',
       date: formatMockDate(tomorrow),
       time: '2:00 PM',
-      note: 'Please make sure to trim the sides too',
+      note: 'Please trim about 2 inches and keep the layers',
       createdAt: new Date().toISOString(),
     },
     {
@@ -34,7 +50,7 @@ export const store = {
       status: 'pending',
       customerName: 'Maria Santos',
       customerPhone: '555-0456',
-      serviceId: 's2',
+      serviceId: 's4',
       date: formatMockDate(dayAfter),
       time: '11:00 AM',
       note: '',
@@ -45,10 +61,10 @@ export const store = {
       status: 'pending',
       customerName: 'Devon Clark',
       customerPhone: '555-0789',
-      serviceId: 's3',
+      serviceId: 's7',
       date: formatMockDate(nextWeek),
       time: '3:00 PM',
-      note: 'First time customer',
+      note: 'First time getting balayage',
       createdAt: new Date().toISOString(),
     }
   ] as BookingRequest[],
@@ -56,38 +72,38 @@ export const store = {
   appointments: [
     {
       id: 'app_1',
-      customerName: 'Carlos Rivera',
+      customerName: 'Sofia Rivera',
       serviceId: 's1',
       date: formatMockDate(today),
       time: '9:00 AM',
-      duration: 45,
+      duration: 60,
       status: 'confirmed'
     },
     {
       id: 'app_2',
       customerName: 'Aisha Thompson',
-      serviceId: 's2',
+      serviceId: 's4',
       date: formatMockDate(today),
       time: '10:30 AM',
-      duration: 20,
+      duration: 90,
       status: 'confirmed'
     },
     {
       id: 'app_3',
-      customerName: 'Kwame Johnson',
-      serviceId: 's4',
+      customerName: 'Priya Patel',
+      serviceId: 's11',
       date: formatMockDate(today),
       time: '12:00 PM',
-      duration: 15,
+      duration: 30,
       status: 'confirmed'
     },
     {
       id: 'app_4',
-      customerName: 'Sofia Mendez',
-      serviceId: 's3',
+      customerName: 'Camille Nguyen',
+      serviceId: 's6',
       date: formatMockDate(today),
-      time: '2:30 PM',
-      duration: 60,
+      time: '2:00 PM',
+      duration: 150,
       status: 'confirmed'
     }
   ] as Appointment[]
@@ -98,13 +114,12 @@ export type DateAvailStatus = 'available' | 'limited' | 'almost-full' | 'full';
 export interface DateAvailInfo { status: DateAvailStatus; label: string }
 
 export function getDateAvailability(dayOffset: number): DateAvailInfo {
-  // Today is always available (barber could be free)
   if (dayOffset === 0) return { status: 'available', label: 'Available' };
   const p = dayOffset % 13;
-  if (p === 4)  return { status: 'limited',     label: '3 spots left' };
-  if (p === 7)  return { status: 'limited',     label: '2 spots left' };
-  if (p === 10) return { status: 'almost-full', label: 'Almost full'  };
-  if (p === 12) return { status: 'full',        label: 'Fully booked' };
+  if (p === 4)  return { status: 'limited',     label: 'Few spots left' };
+  if (p === 7)  return { status: 'limited',     label: '2 spots left'  };
+  if (p === 10) return { status: 'almost-full', label: 'Almost full'   };
+  if (p === 12) return { status: 'full',        label: 'Fully booked'  };
   return { status: 'available', label: 'Available' };
 }
 
